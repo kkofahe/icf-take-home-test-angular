@@ -1,0 +1,11 @@
+<div>
+  <input [(ngModel)]="repo" type="text" />
+
+  <button (click)="getRepos()">Fetch</button>
+
+  <ul>
+    <li *ngFor="let result of results">
+      <span>{{ result.full_name }}</span> | <span>{{ result.watchers }}</span>
+    </li>
+  </ul>
+</div>
