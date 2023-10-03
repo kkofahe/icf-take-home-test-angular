@@ -1,27 +1,37 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ReposService } from './services/repos/repos.service';
-import { firstValueFrom, map, toArray } from 'rxjs';
+import { firstValueFrom, tap } from 'rxjs';
+import { FormControl, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
+  results: any;
+  username = new FormControl('', [Validators.pattern(/^[A-Za-z0-9]{1,15}$/)]);
   constructor(private repoService: ReposService) { }
 
-  title = 'test';
-  repo = '';
-  results: any;
+  ngOnInit(): void {
+    this.username.valueChanges.subscribe(() => {
+      this.results = undefined;
+    })
+  }
+
   async getRepos() {
-    debugger
-    this.results = await firstValueFrom(this.repoService.fetchRepos(this.repo).pipe(
-      toArray(),
-      map((results) => {
-        return results.sort()
-      }
-      )))
-
-
+    if (this.username.valid) {
+      this.results = await firstValueFrom(this.repoService.fetchRepos(this.username.value as string)
+        .pipe(
+          tap((results) => {
+            return results.sort((a, b) => { return a['watchers'] - b['watchers'] });
+          }
+          ))).catch((error) => {
+            console.log(error);
+          })
+    } else {
+      this.username.markAsTouched();
+      this.username.markAsDirty();
+    }
   }
 }

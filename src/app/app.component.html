@@ -1,11 +1,66 @@
-<div>
-  <input [(ngModel)]="repo" type="text" />
+<div class="container">
+  <div>
+    <div class="title">
+      <h1>Fetching Repositories By Name</h1>
+    </div>
+    <div class="form">
+      <label for="username">Username: </label>
+      <input
+        id="username"
+        type="text"
+        required
+        maxlength="15"
+        [formControl]="username"
+        (keyup.enter)="getRepos()"
+        placeholder="Username"
+        name="username"
+        aria-label="username"
+      />
+      <button title="Fetch Repositories" type="button" (click)="getRepos()">
+        Fetch Repositories
+      </button>
+      <div
+        *ngIf="username.invalid && (username.dirty || username.touched)"
+        class="alert"
+      >
+        <div class="alert" *ngIf="username.errors?.['required']">
+          Username is required.
+        </div>
+        <div class="alert" *ngIf="username.errors?.['pattern']">
+          Username only contains numbers and letters
+        </div>
+      </div>
+    </div>
 
-  <button (click)="getRepos()">Fetch</button>
-
-  <ul>
-    <li *ngFor="let result of results">
-      <span>{{ result.full_name }}</span> | <span>{{ result.watchers }}</span>
-    </li>
-  </ul>
+    <div *ngIf="results" class="contnet">
+      <h2 class="title">Repository results</h2>
+      <table class="item-list">
+        <caption>
+          List of repository names and their watcher count, sorted by ascending
+          watcher count.
+        </caption>
+        <thead>
+          <tr>
+            <th>Repository name</th>
+            <th>watchers</th>
+          </tr>
+        </thead>
+        <tbody *ngIf="results.length > 0">
+          <tr *ngFor="let result of results">
+            <td>
+              {{ result.full_name }}
+            </td>
+            <td>
+              {{ result.watchers }}
+            </td>
+          </tr>
+        </tbody>
+        <tbody *ngIf="results.length === 0">
+          <tr>
+            <td colspan="2">No Repositories found for {{ username.value }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
